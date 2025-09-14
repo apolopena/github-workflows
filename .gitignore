@@ -1,0 +1,23 @@
+# =====================
+# OS / Editor cruft
+# =====================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =====================
+# Logs / Temp / Backup
+# =====================
+*.log
+*.tmp
+*.bak
+*.orig
+
+# =====================
+# Windows / WSL metadata
+# =====================
+# NTFS alternate data streams dumped by Windows in WSL
+*.Zone.Identifier
