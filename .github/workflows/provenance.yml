@@ -14,9 +14,9 @@ on:
       draft:             { required: false, type: string }
       plan_only:         { required: false, type: boolean, default: false }
     secrets:
-      AI_APP_ID:           { required: true }
-      AI_APP_PRIVATE_KEY:  { required: true }
-      AI_INSTALLATION_ID:  { required: true }
+      PROVENANCE_APP_ID:           { required: true }
+      PROVENANCE_APP_PRIVATE_KEY:  { required: true }
+      PROVENANCE_INSTALLATION_ID:  { required: true }
 
 jobs:
   run:
