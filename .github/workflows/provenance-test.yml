@@ -1,5 +1,5 @@
 # .github/workflows/provenance-test.yml
-name: test: provenance (manual)
+name: test provenance (manual)
 
 on:
   workflow_dispatch:
