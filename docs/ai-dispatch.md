@@ -1,7 +1,16 @@
-# ai-dispatch — Reusable Workflow
+# ai-dispatch.yml — A Reusable GitHub Workflow for Provenance Stamping 
 
 Reusable GitHub Actions workflow that lets any repo perform **GitHub App–attributed** actions (issues, PRs, comments) via a single, generic App.  
 It mints an installation token, sanity-checks access, and executes the requested action through helper scripts.
+
+---
+
+## Key Purpose
+
+This workflow enforces **transparent attribution of activity**.  
+- Every action must declare a `provenance_label` to show who or what performed the work.  
+- Examples: `Claude_AI` (Claude, Codex, etc.) or `human`.  
+- By requiring this label, AI agents cannot perform GitHub actions disguised under a human username — provenance is always explicit.
 
 ---
 
@@ -72,6 +81,7 @@ The scripts source `.github/scripts/common.sh` for shared helpers.
 - **Effect**: `POST /repos/{repo}/issues` (labels with `"ai"`), provenance block prepended.
 
 **Caller example:**
+
 ```yaml
 jobs:
   call:
@@ -83,9 +93,20 @@ jobs:
       body: "Repro steps..."
 ```
 
+**Equivalent gh CLI call:**
+```bash
+gh workflow run ai-dispatch.yml \
+ -f action=open-issue \
+ -f provenance_label=AI_CODING_ASSISTANT \
+ -f title="Investigate flaky CI" \
+ -f body="Repro steps..."
+```
+
 ### 2) Comment on an issue
 - **Input**: `action=issue-comment`, `number`, `body`
 - **Effect**: `POST /repos/{repo}/issues/{number}/comments`
+
+**Caller example:**
 
 ```yaml
 with:
@@ -95,9 +116,20 @@ with:
   body: "Thanks for the report — queued for triage."
 ```
 
+**Equivalent gh CLI call:**
+```bash
+gh workflow run ai-dispatch.yml \
+ -f action=issue-comment \
+ -f provenance_label=AI_CODING_ASSISTANT \
+ -f number=42 \
+ -f body="Thanks for the report — queued for triage."
+```
+
 ### 3) Comment on a PR
 - **Input**: `action=pr-comment`, `number`, `body`
 - **Effect**: `POST /repos/{repo}/issues/{number}/comments` (PRs share the Issues API for comments)
+
+**Caller example:**
 
 ```yaml
 with:
@@ -107,9 +139,20 @@ with:
   body: "LGTM pending one small tweak."
 ```
 
+**Equivalent gh CLI call:**
+```bash
+gh workflow run ai-dispatch.yml \
+ -f action=pr-comment \
+ -f provenance_label=AI_CODING_ASSISTANT \
+ -f number=128 \
+ -f body="LGTM pending one small tweak."
+```
+
 ### 4) Post a code block comment on a PR
 - **Input**: `action=pr-code`, `number`, `body`
 - **Effect**: Formats `body` inside a fenced code block (diff) with a provenance header.
+
+**Caller example:**
 
 ```yaml
 with:
@@ -124,9 +167,20 @@ with:
     + // removed debug
 ```
 
+**Equivalent gh CLI call:**
+```bash
+gh workflow run ai-dispatch.yml \
+ -f action=pr-code \
+ -f provenance_label=AI_CODING_ASSISTANT \
+ -f number=128 \
+ -f body=$'--- a/app.js\n+++ b/app.js\n@@\n- console.log(\'debug\');\n+ // removed debug'
+```
+
 ### 5) Open a PR
 - **Input**: `action=open-pr`, `title`, `base`, `head`, optional `body`, optional `draft`
 - **Effect**: `POST /repos/{repo}/pulls`
+
+**Caller example:**
 
 ```yaml
 with:
@@ -136,6 +190,17 @@ with:
   base: "main"
   head: "user:feature/dispatch-helpers"
   draft: "false"
+```
+
+**Equivalent gh CLI call:**
+```bash
+gh workflow run ai-dispatch.yml \
+ -f action=open-pr \
+ -f provenance_label=AI_CODING_ASSISTANT \
+ -f title="feat: add dispatch helpers" \
+ -f base=main \
+ -f head=user:feature/dispatch-helpers \
+ -f draft=false
 ```
 
 ---
@@ -151,6 +216,15 @@ with:
   provenance_label: AI_CODING_ASSISTANT
   title: "Test only"
   plan_only: true
+```
+
+**Equivalent gh CLI call:**
+```bash
+gh workflow run ai-dispatch.yml \
+ -f action=open-issue \
+ -f provenance_label=AI_CODING_ASSISTANT \
+ -f title="Test only" \
+ -f plan_only=true
 ```
 
 ---
