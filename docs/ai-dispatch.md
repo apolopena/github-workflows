@@ -1,4 +1,4 @@
-# ai-dispatch.yml — A Reusable GitHub Workflow for Provenance Stamping 
+# provenance.yml — A Reusable GitHub Workflow for Provenance Stamping 
 
 Reusable GitHub Actions workflow that lets any repo perform **GitHub App–attributed** actions (issues, PRs, comments) via a single, generic App.  
 It mints an installation token, sanity-checks access, and executes the requested action through helper scripts.

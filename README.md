@@ -1,6 +1,6 @@
 # GitHub Workflows
 
-Reusable GitHub Actions workflows and helper scripts for automation.
+Reusable GitHub Actions workflows and helper scripts for automation
 
 ## Structure
 
@@ -11,20 +11,23 @@ docs/                # Usage docs and input/output references
 
 ## Usage
 
-Reference a workflow from this repo in another repository:
+Reference a workflow from this repo in another repository
 
 ```yaml
 jobs:
   dispatch:
-    uses: apolopena/github-workflows/.github/workflows/ai-dispatch.yml@main
+    uses: apolopena/github-workflows/.github/workflows/provenance.yml@main
     with:
-      # example input
       action: "open-issue"
+      provenance_label: "Claude_AI"
     secrets:
-      AI_APP_PRIVATE_KEY: ${{ secrets.AI_APP_PRIVATE_KEY }}
+      PROVENANCE_APP_ID: ${{ secrets.PROVENANCE_APP_ID }}
+      PROVENANCE_APP_PRIVATE_KEY: ${{ secrets.PROVENANCE_APP_PRIVATE_KEY }}
+      PROVENANCE_INSTALLATION_ID: ${{ secrets.PROVENANCE_INSTALLATION_ID }}
+
 ```
 
-See `examples/caller.ai.yml` for a minimal template.
+See [examples](./examples/) such as [caller.provenance.yml](./examples/caller.provenance.yml) for a minimal template.
 
 ## Notes
 

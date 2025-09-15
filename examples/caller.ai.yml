@@ -16,7 +16,7 @@ on:
 
 jobs:
   call:
-    uses: apolopena/github-workflows/.github/workflows/ai-dispatch.yml@main
+    uses: apolopena/github-workflows/.github/workflows/provenance.yml@main
     with:
       action:           ${{ inputs.action }}
       provenance_label: ${{ inputs.provenance_label }}
@@ -29,6 +29,6 @@ jobs:
       draft:            ${{ inputs.draft }}
       plan_only:        ${{ inputs.plan_only }}
     secrets:
-      AI_APP_ID:           ${{ secrets.AI_APP_ID }}
-      AI_APP_PRIVATE_KEY:  ${{ secrets.AI_APP_PRIVATE_KEY }}
-      AI_INSTALLATION_ID:  ${{ secrets.AI_INSTALLATION_ID }}
+      AI_APP_ID:           ${{ secrets.PROVENANCE_APP_ID }}
+      AI_APP_PRIVATE_KEY:  ${{ secrets.PROVENANCE_APP_PRIVATE_KEY }}
+      AI_INSTALLATION_ID:  ${{ secrets.PROVENANCE_INSTALLATION_ID }}
