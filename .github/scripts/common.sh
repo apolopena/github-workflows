@@ -2,6 +2,12 @@
 set -euo pipefail
 : "${API_VER:=2022-11-28}"
 
+# Require provenance label early (even if provided as empty string)
+if [ -z "${PROV_LABEL:-}" ]; then
+  echo "Missing required PROV_LABEL (provenance label, e.g., AI_CODING_ASSISTANT)" >&2
+  exit 1
+fi
+
 # TOKEN must be set by the caller
 api_get() {
   curl -fsS \
@@ -23,14 +29,16 @@ api_post() {
     "${url}"
 }
 
-# TODO: add an argument for ai code assistant actor
 # ACTOR should be set by the caller (for attribution only)
 provenance_block() {
   local pvt
   pvt="$(cat <<'EOF'
 <!-- AI-PROVENANCE: DO NOT EDIT -->
 initiated-by: @__ACTOR__
+provenance-label: __LABEL__
 EOF
 )"
-  printf '%s' "${pvt/__ACTOR__/${ACTOR:-unknown}}"
+  pvt="${pvt/__ACTOR__/${ACTOR:-unknown}}"
+  pvt="${pvt/__LABEL__/${PROV_LABEL}}"
+  printf '%s' "$pvt"
 }

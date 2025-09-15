@@ -3,15 +3,16 @@ name: ai-dispatch
 on:
   workflow_call:
     inputs:
-      action:      { required: true,  type: string,  description: "open-issue|pr-comment|issue-comment|pr-code|open-pr" }
-      target_repo: { required: false, type: string,  description: "owner/repo (defaults to caller)" }
-      number:      { required: false, type: string }
-      title:       { required: false, type: string }
-      body:        { required: false, type: string }
-      base:        { required: false, type: string }
-      head:        { required: false, type: string }
-      draft:       { required: false, type: string }
-      plan_only:   { required: false, type: boolean, default: false }
+      action:            { required: true,  type: string,  description: "open-issue|pr-comment|issue-comment|pr-code|open-pr" }
+      provenance_label:  { required: true,  type: string,  description: "Caller-supplied provenance marker (e.g., AI_CODING_ASSISTANT)" }
+      target_repo:       { required: false, type: string,  description: "owner/repo (defaults to caller)" }
+      number:            { required: false, type: string }
+      title:             { required: false, type: string }
+      body:              { required: false, type: string }
+      base:              { required: false, type: string }
+      head:              { required: false, type: string }
+      draft:             { required: false, type: string }
+      plan_only:         { required: false, type: boolean, default: false }
     secrets:
       AI_APP_ID:           { required: true }
       AI_APP_PRIVATE_KEY:  { required: true }
@@ -50,9 +51,11 @@ jobs:
           TITLE:       ${{ inputs.title }}
           BASE:        ${{ inputs.base }}
           HEAD:        ${{ inputs.head }}
+          PROV_LABEL:  ${{ inputs.provenance_label }}
         run: |
           set -euo pipefail
           REPO="${TARGET_REPO:-${GITHUB_REPOSITORY}}"
+          echo "Provenance: ${PROV_LABEL}"
           echo "Action: $ACTION"
           case "$ACTION" in
             open-issue)    echo "POST /repos/$REPO/issues (title='${TITLE:-}')" ;;
@@ -71,22 +74,24 @@ jobs:
         if: ${{ inputs.plan_only != true }}
         shell: bash
         env:
-          TOKEN: ${{ steps.app-token.outputs.token }}
-          REPO:  ${{ inputs.target_repo }}
+          TOKEN:      ${{ steps.app-token.outputs.token }}
+          REPO:       ${{ inputs.target_repo }}
+          PROV_LABEL: ${{ inputs.provenance_label }}
         run: .github/scripts/sanity.sh
 
       - name: Dispatch action
         if: ${{ inputs.plan_only != true }}
         shell: bash
         env:
-          TOKEN: ${{ steps.app-token.outputs.token }}
-          REPO:  ${{ inputs.target_repo }}
-          ACT:   ${{ inputs.action }}
-          NUM:   ${{ inputs.number }}
-          TITLE: ${{ inputs.title }}
-          BODY:  ${{ inputs.body }}
-          BASE:  ${{ inputs.base }}
-          HEAD:  ${{ inputs.head }}
-          DRAFT: ${{ inputs.draft }}
-          ACTOR: ${{ github.actor }}
+          TOKEN:      ${{ steps.app-token.outputs.token }}
+          REPO:       ${{ inputs.target_repo }}
+          ACT:        ${{ inputs.action }}
+          NUM:        ${{ inputs.number }}
+          TITLE:      ${{ inputs.title }}
+          BODY:       ${{ inputs.body }}
+          BASE:       ${{ inputs.base }}
+          HEAD:       ${{ inputs.head }}
+          DRAFT:      ${{ inputs.draft }}
+          ACTOR:      ${{ github.actor }}
+          PROV_LABEL: ${{ inputs.provenance_label }}
         run: .github/scripts/dispatch_action.sh

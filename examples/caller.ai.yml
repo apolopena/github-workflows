@@ -3,29 +3,31 @@ name: AI helper
 on:
   workflow_dispatch:
     inputs:
-      action:      { description: "open-issue|pr-comment|issue-comment|pr-code|open-pr", required: true }
-      target_repo: { required: false }
-      number:      { required: false }
-      title:       { required: false }
-      body:        { required: false }
-      base:        { required: false }
-      head:        { required: false }
-      draft:       { required: false }
-      plan_only:   { required: false, type: boolean, default: false }
+      action:           { description: "open-issue|pr-comment|issue-comment|pr-code|open-pr", required: true }
+      provenance_label: { description: "e.g., AI_CODING_ASSISTANT", required: true }
+      target_repo:      { required: false }
+      number:           { required: false }
+      title:            { required: false }
+      body:             { required: false }
+      base:             { required: false }
+      head:             { required: false }
+      draft:            { required: false }
+      plan_only:        { required: false, type: boolean, default: false }
 
 jobs:
   call:
     uses: apolopena/github-workflows/.github/workflows/ai-dispatch.yml@main
     with:
-      action:      ${{ inputs.action }}
-      target_repo: ${{ inputs.target_repo }}
-      number:      ${{ inputs.number }}
-      title:       ${{ inputs.title }}
-      body:        ${{ inputs.body }}
-      base:        ${{ inputs.base }}
-      head:        ${{ inputs.head }}
-      draft:       ${{ inputs.draft }}
-      plan_only:   ${{ inputs.plan_only }}
+      action:           ${{ inputs.action }}
+      provenance_label: ${{ inputs.provenance_label }}
+      target_repo:      ${{ inputs.target_repo }}
+      number:           ${{ inputs.number }}
+      title:            ${{ inputs.title }}
+      body:             ${{ inputs.body }}
+      base:             ${{ inputs.base }}
+      head:             ${{ inputs.head }}
+      draft:            ${{ inputs.draft }}
+      plan_only:        ${{ inputs.plan_only }}
     secrets:
       AI_APP_ID:           ${{ secrets.AI_APP_ID }}
       AI_APP_PRIVATE_KEY:  ${{ secrets.AI_APP_PRIVATE_KEY }}
