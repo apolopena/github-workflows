@@ -1,0 +1,97 @@
+name: provenance (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      action:            { required: true,  type: string,  description: "open-issue|pr-comment|issue-comment|pr-code|open-pr" }
+      provenance_label:  { required: true,  type: string,  description: "Caller-supplied provenance marker (e.g., AI_CODING_ASSISTANT)" }
+      target_repo:       { required: false, type: string,  description: "owner/repo (defaults to caller)" }
+      number:            { required: false, type: string }
+      title:             { required: false, type: string }
+      body:              { required: false, type: string }
+      base:              { required: false, type: string }
+      head:              { required: false, type: string }
+      draft:             { required: false, type: string }
+      plan_only:         { required: false, type: boolean, default: false }
+    secrets:
+      PROVENANCE_APP_ID:           { required: true }
+      PROVENANCE_APP_PRIVATE_KEY:  { required: true }
+      PROVENANCE_INSTALLATION_ID:  { required: true }
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mint installation token
+        id: app-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.PROVENANCE_APP_ID }}
+          private_key: ${{ secrets.PROVENANCE_APP_PRIVATE_KEY }}
+          installation_retrieval_mode: id
+          installation_retrieval_payload: ${{ secrets.PROVENANCE_INSTALLATION_ID }}
+
+      - name: Prepare scripts (defensive)
+        run: chmod +x .github/scripts/*.sh
+
+      - name: Plan
+        shell: bash
+        env:
+          ACTION:      ${{ inputs.action }}
+          TARGET_REPO: ${{ inputs.target_repo }}
+          NUMBER:      ${{ inputs.number }}
+          TITLE:       ${{ inputs.title }}
+          BASE:        ${{ inputs.base }}
+          HEAD:        ${{ inputs.head }}
+          PROV_LABEL:  ${{ inputs.provenance_label }}
+        run: |
+          set -euo pipefail
+          REPO="${TARGET_REPO:-${GITHUB_REPOSITORY}}"
+          echo "Provenance: ${PROV_LABEL}"
+          echo "Action: $ACTION"
+          case "$ACTION" in
+            open-issue)    echo "POST /repos/$REPO/issues (title='${TITLE:-}')" ;;
+            pr-comment)    echo "POST /repos/$REPO/issues/${NUMBER:-?}/comments" ;;
+            issue-comment) echo "POST /repos/$REPO/issues/${NUMBER:-?}/comments" ;;
+            pr-code)       echo "POST (code) /repos/$REPO/issues/${NUMBER:-?}/comments" ;;
+            open-pr)       echo "POST /repos/$REPO/pulls (base='${BASE:-}', head='${HEAD:-}', title='${TITLE:-}')" ;;
+            *)             echo "Unknown action: $ACTION"; exit 1 ;;
+          esac
+
+      - name: Stop on plan_only
+        if: ${{ inputs.plan_only == true }}
+        run: echo "Dry run (plan_only=true). No changes made."
+
+      - name: Sanity check
+        if: ${{ inputs.plan_only != true }}
+        shell: bash
+        env:
+          TOKEN:      ${{ steps.app-token.outputs.token }}
+          REPO:       ${{ inputs.target_repo }}
+          PROV_LABEL: ${{ inputs.provenance_label }}
+        run: .github/scripts/sanity.sh
+
+      - name: Dispatch action
+        if: ${{ inputs.plan_only != true }}
+        shell: bash
+        env:
+          TOKEN:      ${{ steps.app-token.outputs.token }}
+          REPO:       ${{ inputs.target_repo }}
+          ACT:        ${{ inputs.action }}
+          NUM:        ${{ inputs.number }}
+          TITLE:      ${{ inputs.title }}
+          BODY:       ${{ inputs.body }}
+          BASE:       ${{ inputs.base }}
+          HEAD:       ${{ inputs.head }}
+          DRAFT:      ${{ inputs.draft }}
+          ACTOR:      ${{ github.actor }}
+          PROV_LABEL: ${{ inputs.provenance_label }}
+        run: .github/scripts/dispatch_action.sh
