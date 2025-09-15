@@ -1,0 +1,73 @@
+# .github/workflows/provenance-test.yml
+name: test: provenance (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "open-issue | issue-comment | pr-comment | pr-code | open-pr"
+        type: string
+        required: true
+      provenance_label:
+        description: "e.g., human or AI_CODING_ASSISTANT"
+        type: string
+        required: true
+      # Optional helper inputs — use only what your action needs
+      target_repo:
+        description: "owner/repo (defaults to this repo)"
+        type: string
+        required: false
+      number:
+        description: "Issue/PR number for comment actions"
+        type: string
+        required: false
+      title:
+        description: "Title for open-issue/open-pr"
+        type: string
+        required: false
+      body:
+        description: "Body for issues/comments/PRs"
+        type: string
+        required: false
+      base:
+        description: "Base branch for open-pr"
+        type: string
+        required: false
+      head:
+        description: "Head (e.g., user:feature-branch) for open-pr"
+        type: string
+        required: false
+      draft:
+        description: "true|false for draft PRs"
+        type: string
+        required: false
+      plan_only:
+        description: "true to dry-run (no changes)"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  # ✅ This calls the reusable by PATH, so it runs the implementation on THIS BRANCH/COMMIT
+  run:
+    uses: ./.github/workflows/provenance.yml
+    with:
+      action:           ${{ inputs.action }}
+      provenance_label: ${{ inputs.provenance_label }}
+      target_repo:      ${{ inputs.target_repo }}
+      number:           ${{ inputs.number }}
+      title:            ${{ inputs.title }}
+      body:             ${{ inputs.body }}
+      base:             ${{ inputs.base }}
+      head:             ${{ inputs.head }}
+      draft:            ${{ inputs.draft }}
+      plan_only:        ${{ inputs.plan_only }}
+    secrets:
+      PROVENANCE_APP_ID:           ${{ secrets.PROVENANCE_APP_ID }}
+      PROVENANCE_APP_PRIVATE_KEY:  ${{ secrets.PROVENANCE_APP_PRIVATE_KEY }}
+      PROVENANCE_INSTALLATION_ID:  ${{ secrets.PROVENANCE_INSTALLATION_ID }}
