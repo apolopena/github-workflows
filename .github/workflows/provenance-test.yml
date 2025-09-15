@@ -55,7 +55,7 @@ permissions:
 jobs:
   # ✅ This calls the reusable by PATH, so it runs the implementation on THIS BRANCH/COMMIT
   run:
-    uses: ./.github/workflows/provenance.yml
+    uses: apolopena/github-workflows/.github/workflows/provenance.yml@dev-branch
     with:
       action:           ${{ inputs.action }}
       provenance_label: ${{ inputs.provenance_label }}
