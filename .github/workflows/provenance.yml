@@ -17,8 +17,9 @@ on:
       provenance_label:
         required: true
         type: string
+        default: "AI Coding Assistant"
         description: >
-          Marker identifying the provenance/caller (e.g., "AI_CODING_ASSISTANT").
+          Marker identifying the provenance/caller (e.g., "AI Coding Assistant").
           Used for audit and traceability.
       target_repo:
         required: false
