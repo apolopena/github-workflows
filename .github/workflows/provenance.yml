@@ -3,16 +3,75 @@ name: provenance (reusable)
 on:
   workflow_call:
     inputs:
-      action:            { required: true,  type: string,  description: "open-issue|pr-comment|issue-comment|pr-code|open-pr" }
-      provenance_label:  { required: true,  type: string,  description: "Caller-supplied provenance marker (e.g., AI_CODING_ASSISTANT)" }
-      target_repo:       { required: false, type: string,  description: "owner/repo (defaults to caller)" }
-      number:            { required: false, type: string }
-      title:             { required: false, type: string }
-      body:              { required: false, type: string }
-      base:              { required: false, type: string }
-      head:              { required: false, type: string }
-      draft:             { required: false, type: string }
-      plan_only:         { required: false, type: boolean, default: false }
+      action:
+        required: true
+        type: string
+        description: >
+          Which GitHub operation to perform.
+          Options:
+            - open-issue:     Create a new issue
+            - issue-comment:  Comment on an existing issue
+            - pr-comment:     Comment on an existing pull request
+            - pr-code:        Post code content as a PR comment
+            - open-pr:        Create a new pull request
+      provenance_label:
+        required: true
+        type: string
+        description: >
+          Marker identifying the provenance/caller (e.g., "AI_CODING_ASSISTANT").
+          Used for audit and traceability.
+      target_repo:
+        required: false
+        type: string
+        description: >
+          Repository to operate on in "owner/repo" format.
+          Defaults to the caller repository if not provided.
+      number:
+        required: false
+        type: string
+        description: >
+          Issue or pull request number.
+          Required for actions that target an existing issue/PR
+          (e.g., issue-comment, pr-comment, pr-code).
+      title:
+        required: false
+        type: string
+        description: >
+          Title text for newly opened issues or pull requests
+          (used only with open-issue and open-pr).
+      body:
+        required: false
+        type: string
+        description: >
+          Body text for issues, PRs, or comments.
+          Used with open-issue, open-pr, issue-comment, pr-comment, pr-code.
+      base:
+        required: false
+        type: string
+        description: >
+          Base branch name for new pull requests (e.g., "main").
+          Used only with open-pr.
+      head:
+        required: false
+        type: string
+        description: >
+          Head branch name for new pull requests (source branch).
+          Used only with open-pr.
+      draft:
+        required: false
+        type: string
+        description: >
+          Flag to mark a new pull request as a draft.
+          Used only with open-pr.
+      plan_only:
+        required: false
+        type: boolean
+        default: false
+        description: >
+          Dry-run mode: print which API call would be made without
+          actually creating or modifying issues/PRs.
+          Applies to all action types.
+
     secrets:
       PROVENANCE_APP_ID:           { required: true }
       PROVENANCE_APP_PRIVATE_KEY:  { required: true }
