@@ -64,7 +64,7 @@ Your GitHub App must also have the corresponding **App permissions** enabled and
 
 ## Environment passed to scripts
 
-`ai-dispatch.yml` sets:
+`provenance.yml` sets:
 
 - `TOKEN` — GitHub App installation token (via tibdex action)
 - `REPO` — `inputs.target_repo` or defaults to `${{ github.repository }}`
@@ -85,7 +85,7 @@ The scripts source `.github/scripts/common.sh` for shared helpers.
 ```yaml
 jobs:
   call:
-    uses: apolopena/github-workflows/.github/workflows/ai-dispatch.yml@main
+    uses: apolopena/github-workflows/.github/workflows/provenance.yml@main
     with:
       action: open-issue
       provenance_label: AI_CODING_ASSISTANT
@@ -95,7 +95,7 @@ jobs:
 
 **Equivalent gh CLI call:**
 ```bash
-gh workflow run ai-dispatch.yml \
+gh workflow run provenance.yml \
  -f action=open-issue \
  -f provenance_label=AI_CODING_ASSISTANT \
  -f title="Investigate flaky CI" \
@@ -118,7 +118,7 @@ with:
 
 **Equivalent gh CLI call:**
 ```bash
-gh workflow run ai-dispatch.yml \
+gh workflow run provenance.yml \
  -f action=issue-comment \
  -f provenance_label=AI_CODING_ASSISTANT \
  -f number=42 \
@@ -141,7 +141,7 @@ with:
 
 **Equivalent gh CLI call:**
 ```bash
-gh workflow run ai-dispatch.yml \
+gh workflow run provenance.yml \
  -f action=pr-comment \
  -f provenance_label=AI_CODING_ASSISTANT \
  -f number=128 \
@@ -169,7 +169,7 @@ with:
 
 **Equivalent gh CLI call:**
 ```bash
-gh workflow run ai-dispatch.yml \
+gh workflow run provenance.yml \
  -f action=pr-code \
  -f provenance_label=AI_CODING_ASSISTANT \
  -f number=128 \
@@ -194,7 +194,7 @@ with:
 
 **Equivalent gh CLI call:**
 ```bash
-gh workflow run ai-dispatch.yml \
+gh workflow run provenance.yml \
  -f action=open-pr \
  -f provenance_label=AI_CODING_ASSISTANT \
  -f title="feat: add dispatch helpers" \
@@ -220,7 +220,7 @@ with:
 
 **Equivalent gh CLI call:**
 ```bash
-gh workflow run ai-dispatch.yml \
+gh workflow run provenance.yml \
  -f action=open-issue \
  -f provenance_label=AI_CODING_ASSISTANT \
  -f title="Test only" \
