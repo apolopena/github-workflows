@@ -7,6 +7,7 @@
   ```
 - Review with `git diff --staged` before committing
 - Tell user "Ready to push" after committing
+- Tell user "Ready to pull"  when a pull is needed
 
 ## Workflow Testing
 - Test workflows from branch: `gh workflow run NAME.yml --ref BRANCH_NAME -f param=value`
@@ -14,8 +15,10 @@
 - View issues: `gh issue view NUMBER`
 
 ## GitHub Operations
-- **MANDATORY**: Use provenance workflow for all GitHub operations (issues, PRs, comments) instead of direct `gh` commands
-- Always specify `--ref BRANCH_NAME` to use current branch implementation
+- **MANDATORY**: Use `gh workflow run provenance.yml` for these actions:
+  - `open-issue`, `issue-comment`, `pr-comment`, `pr-code`, `open-pr`
+- Never use direct `gh issue`, `gh pr` commands
+- Always include `--ref BRANCH_NAME` and `-f provenance_label=Claude_AI`
 
 ## Key Learning
 Without `--ref BRANCH_NAME`, workflows run from main branch even when you're on different branch locally.
