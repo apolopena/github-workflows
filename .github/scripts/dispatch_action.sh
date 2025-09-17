@@ -9,7 +9,7 @@ REPO="${REPO:-${GITHUB_REPOSITORY}}"
 case "${DRAFT:-}" in true|false) : ;; *) DRAFT="false" ;; esac
 
 PVT="$(provenance_block)"
-BODY_JOINED="$(printf '%s\n\n%s' "$PVT" "${BODY:-}")"
+BODY_JOINED="$(printf '%s\n\n%s' "${BODY:-}" "$PVT")"
 
 case "${ACT}" in
   open-issue)
