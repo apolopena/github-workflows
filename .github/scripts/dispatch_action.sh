@@ -9,7 +9,9 @@ REPO="${REPO:-${GITHUB_REPOSITORY}}"
 case "${DRAFT:-}" in true|false) : ;; *) DRAFT="false" ;; esac
 
 PVT="$(provenance_block)"
-BODY_JOINED="$(printf '%s\n\n%s' "${BODY:-}" "$PVT")"
+# Convert literal \n to actual newlines in body
+BODY_PROCESSED="$(printf '%b' "${BODY:-}")"
+BODY_JOINED="$(printf '%s\n\n%s' "$BODY_PROCESSED" "$PVT")"
 
 case "${ACT}" in
   open-issue)
