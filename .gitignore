@@ -1,6 +1,10 @@
 # =====================
 # AI
 # =====================
+# .claude/settings.local.json
+# .claude/temp/
+# .claude/cache/
+# .claude/*.log
 .claude/
 
 # =====================
