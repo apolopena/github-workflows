@@ -81,9 +81,15 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "open-issue | issue-comment | pr-comment | pr-code | open-pr"
-        type: string
+        description: "GitHub operation to perform"
+        type: choice
         required: true
+        options:
+          - open-issue
+          - issue-comment
+          - pr-comment
+          - pr-code
+          - open-pr
       provenance_label:
         description: "e.g., human or AI_CODING_ASSISTANT"
         type: string

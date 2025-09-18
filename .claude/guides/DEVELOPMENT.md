@@ -16,7 +16,7 @@ When making changes to this provenance-tracking GitHub Actions workflow reposito
 
 ## Testing Protocol
 1. Use `plan_only: true` for dry-run validation before live changes
-2. Test via `provenance-test.yml` workflow with manual dispatch
+2. Test via `provenance.yml` workflow with manual dispatch using `workflow_dispatch`
 3. Verify all 5 action types: `open-issue`, `issue-comment`, `pr-comment`, `pr-code`, `open-pr`
 4. Test edge cases: missing parameters, malformed inputs, cross-repo operations
 
@@ -45,3 +45,4 @@ Use brief but self-documenting alias names. Balance brevity with clarity - `cl-b
 - Prioritize security, auditability, and reliability in all modifications
 - Edit existing code when needed to meet requirements, but preserve the core design principles
 - Maintain consistency with established conventions while implementing requested functionality
+- **Never assume functional issues are resolved until they are tested** - all fixes must be validated

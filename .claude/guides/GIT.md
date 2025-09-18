@@ -3,7 +3,7 @@
 ## Commits
 - **MANDATORY**: Claude attribution:
   ```bash
-  GIT_AUTHOR_NAME="Claude (via USERNAME)" GIT_AUTHOR_EMAIL="USER_GITHUB_EMAIL" GIT_COMMITTER_NAME="Claude (via USERNAME)" GIT_COMMITTER_EMAIL="USER_GITHUB_EMAIL" git commit --no-gpg-sign -m "commit message"
+  GIT_AUTHOR_NAME="Claude (via $(git config --get user.name))" GIT_AUTHOR_EMAIL="$(git config --get user.email)" GIT_COMMITTER_NAME="Claude (via $(git config --get user.name))" GIT_COMMITTER_EMAIL="$(git config --get user.email)" git commit --no-gpg-sign -m "commit message"
   ```
 - Review with `git diff --staged` before committing
 - Tell user "Ready to push" after committing
