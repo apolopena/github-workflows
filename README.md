@@ -1,40 +1,30 @@
-# GitHub Workflows
+# Reusable GitHub Workflows
 
-Reusable GitHub Actions workflows and helper scripts for automation
+Collection of reusable GitHub Actions workflows for automation across repositories.
 
-## Structure
+## Available Workflows
 
-.github/workflows/   # Reusable workflows (workflow_call)  
-.github/scripts/     # Helper shell scripts used by workflows  
-examples/            # Example caller workflows (templates, not active here)  
-docs/                # Usage docs and input/output references  
+- **[provenance.yml](docs/provenance.md)** - GitHub App-authenticated actions with transparent AI attribution
 
-## Usage
+## Quick Start
 
-Reference a workflow from this repo in another repository
+Reference workflows from your repository:
 
 ```yaml
 jobs:
-  dispatch:
+  example:
     uses: apolopena/github-workflows/.github/workflows/provenance.yml@main
     with:
       action: "open-issue"
       provenance_label: "Claude_AI"
+      title: "Example issue"
     secrets:
       PROVENANCE_APP_ID: ${{ secrets.PROVENANCE_APP_ID }}
       PROVENANCE_APP_PRIVATE_KEY: ${{ secrets.PROVENANCE_APP_PRIVATE_KEY }}
       PROVENANCE_INSTALLATION_ID: ${{ secrets.PROVENANCE_INSTALLATION_ID }}
-
 ```
 
-See [examples](./examples/) such as [caller.provenance.yml](./examples/caller.provenance.yml) for a minimal template.
-
-## Notes
-
-- Workflows here are **reusable only** — they won’t run automatically in this repo.  
-- Helper scripts under `.github/scripts/` must remain executable (`chmod +x`).  
-- Secrets are **never stored in this repo**. Only secret _labels_ appear in workflows; values must be configured in the caller repo.  
-- Docs live in `docs/` for each workflow with usage details and input/output references.  
+See [examples/](./examples/) for complete templates.
 
 ## License
 
