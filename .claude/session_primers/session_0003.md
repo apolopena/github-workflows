@@ -1,0 +1,13 @@
+# Provenance Workflow Consolidation Session Primer
+
+## Current Project State and Architecture
+
+This is a GitHub Actions reusable workflow repository that implements transparent AI provenance tracking for GitHub operations. The core deliverable is `.github/workflows/provenance.yml` - a production-ready reusable workflow that enables any repository to perform GitHub App-authenticated actions (issues, PRs, comments) while maintaining explicit audit trails. The workflow enforces mandatory provenance labeling through a required `provenance_label` input, preventing AI systems from operating under disguised human attribution. The architecture consists of five supported action types (`open-issue`, `issue-comment`, `pr-comment`, `pr-code`, `open-pr`), GitHub App token authentication via `tibdex/github-app-token@v2`, comprehensive input validation, and a dry-run `plan_only` mode for safe testing.
+
+## Recent Consolidation and Cleanup Work
+
+The current session focused on repository cleanup and consolidation following successful completion of the core provenance workflow functionality. The branch `provenance_label` shows staged deletions of development artifacts including `.claude/DEVELOPMENT.md`, `.claude/GIT.md`, and the test workflow `.github/workflows/provenance-test.yml`, with modifications to the main production workflow. The project has transitioned from development/testing phase to production-ready state, with PR #7 already merged to main indicating the core functionality is stable. New untracked `.claude/` directories contain development tooling including guides, session primers, and commands that provide structured development context for future work.
+
+## Production Workflow Implementation Details
+
+The consolidated `provenance.yml` workflow supports both `workflow_call` (for reusable workflow usage) and `workflow_dispatch` (for manual testing) trigger modes. Key implementation features include: robust input validation with descriptive parameter documentation, GitHub App authentication requiring three secrets (`PROVENANCE_APP_ID`, `PROVENANCE_APP_PRIVATE_KEY`, `PROVENANCE_INSTALLATION_ID`), a comprehensive planning step that outputs intended API operations before execution, defensive scripting with proper permissions and timeout controls, and error handling through supporting shell scripts in `.github/scripts/`. The workflow maintains backward compatibility while providing complete transparency about AI vs human attribution through the mandatory provenance labeling system.
