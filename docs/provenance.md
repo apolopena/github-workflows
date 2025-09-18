@@ -1,23 +1,29 @@
-# provenance.yml — A Reusable GitHub Workflow for Provenance Stamping 
+# A Reusable GitHub Workflow for Provenance Stamping provenance.yml —  provenance.yml
 
-Reusable GitHub Actions workflow that lets any repo perform **GitHub App–attributed** actions (issues, PRs, comments) via a single, generic App.  
-It mints an installation token, sanity-checks access, and executes the requested action through helper scripts.
+Reusable workflow for GitHub App-authenticated actions (issues, PRs, comments) with transparent provenance tracking.
+
+## Key Features
+
+- **Transparent Attribution**: Every action requires a `provenance_label` (e.g., `Claude_AI`, `human`)
+- **GitHub App Authentication**: Uses short lived installation tokens for secure API access
+- **Multiple Actions**: Issues, PR/issue comments, code comments, pull requests
+- **Dry-Run Mode**: Test with `plan_only: true` before making changes
 
 ---
 
 ## Key Purpose
 
-This workflow enforces **transparent attribution of activity**.  
-- Every action must declare a `provenance_label` to show who or what performed the work.  
-- Examples: `Claude_AI` (Claude, Codex, etc.) or `human`.  
+This workflow enforces **transparent attribution of activity**.
+- Every action must declare a `provenance_label` to show who or what performed the work.
+- Examples: `Claude_AI` (Claude, Codex, etc.) or `human`.
 - By requiring this label, AI agents cannot perform GitHub actions disguised under a human username — provenance is always explicit.
 
 ---
 
 ## How it works (quick flow)
 
-1) `tibdex/github-app-token@v2` mints a short-lived **installation token** for your App.  
-2) `.github/scripts/sanity.sh` verifies token validity and that the target repo is visible.  
+1) `tibdex/github-app-token@v2` mints a short-lived **installation token** for your App.
+2) `.github/scripts/sanity.sh` verifies token validity and that the target repo is visible.
 3) `.github/scripts/dispatch_action.sh` performs the requested action (issue/PR/comment), tagging provenance.
 
 ---
@@ -43,11 +49,11 @@ This workflow enforces **transparent attribution of activity**.
 
 | Secret                 | Meaning |
 |------------------------|---------|
-| `AI_APP_ID`            | Your GitHub App ID (integer). |
-| `AI_APP_PRIVATE_KEY`   | The App’s PEM private key (multi-line). |
-| `AI_INSTALLATION_ID`   | The installation ID for the org/repo. |
+| `PROVENANCE_APP_ID`    | Your GitHub App ID (integer). |
+| `PROVENANCE_APP_PRIVATE_KEY` | The App's PEM private key (multi-line). |
+| `PROVENANCE_INSTALLATION_ID` | The installation ID for the org/repo. |
 
-> These are **labels only** in YAML; the secret values live in the caller’s settings.
+> These are **labels only** in YAML; the secret values live in the caller's settings.
 
 ---
 
@@ -207,7 +213,7 @@ gh workflow run provenance.yml \
 
 ## Dry-run planning
 
-Set `plan_only: true` to preview the exact API endpoints that would be called.  
+Set `plan_only: true` to preview the exact API endpoints that would be called.
 The workflow prints the plan and stops before making changes.
 
 ```yaml
@@ -231,34 +237,34 @@ gh workflow run provenance.yml \
 
 ## Caller template
 
-See [`examples/caller.ai.yml`](../examples/caller.ai.yml) for a minimal workflow-dispatch caller.  
+See [`examples/caller.ai.yml`](../examples/caller.ai.yml) for a minimal workflow-dispatch caller.
 Pin to a tag or commit for stability (e.g., `@v1` or `@<sha>`), not `@main`, in production.
 
 ---
 
 ## Troubleshooting
 
-- **403 / Not Found on repo API calls**  
+- **403 / Not Found on repo API calls**
   Ensure the GitHub App is **installed** on the target repo/org and has the **Issues** / **Pull requests** permissions.
 
-- **401 / Bad credentials**  
-  Check that `AI_APP_ID`, `AI_APP_PRIVATE_KEY`, and `AI_INSTALLATION_ID` are correct and belong to the **same** GitHub App.
+- **401 / Bad credentials**
+  Check that `PROVENANCE_APP_ID`, `PROVENANCE_APP_PRIVATE_KEY`, and `PROVENANCE_INSTALLATION_ID` are correct and belong to the **same** GitHub App.
 
-- **`jq: command not found`**  
-  The scripts use `jq`. On `ubuntu-latest` it’s typically available; if not, add a setup step:  
+- **`jq: command not found`**
+  The scripts use `jq`. On `ubuntu-latest` it's typically available; if not, add a setup step:
   ```yaml
   - run: sudo apt-get update && sudo apt-get install -y jq
   ```
 
-- **Provenance missing actor or label**  
+- **Provenance missing actor or label**
   Ensure both `ACTOR` and `PROV_LABEL` envs are set (the workflow already does this).
 
 ---
 
 ## Security Model
 
-- Workflow code here is public; **secrets remain in caller repos**.  
-- Actions execute **as your GitHub App** via its installation token.  
+- Workflow code here is public; **secrets remain in caller repos**.
+- Actions execute **as your GitHub App** via its installation token.
 - The provenance block records both the `github.actor` and the required `provenance_label` for auditability.
 
 ---
