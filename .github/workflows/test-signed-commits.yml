@@ -22,30 +22,37 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Create signed commit via GitHub REST API
+      - uses: actions/checkout@v4
+      - name: Create file and commit via API
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get current branch SHA
-          CURRENT_SHA=$(gh api repos/${{ github.repository }}/git/refs/heads/${{ github.ref_name }} --jq '.object.sha')
+          # Create the file content
+          echo '${{ github.event.inputs.file_content }}' > '${{ github.event.inputs.file_path }}'
+
+          # Get current commit SHA
+          CURRENT_SHA=$(git rev-parse HEAD)
           echo "Current SHA: $CURRENT_SHA"
 
-          # Get current tree SHA
+          # Create blob from file
+          BLOB_SHA=$(gh api repos/${{ github.repository }}/git/blobs \
+            --field content="$(base64 -w 0 '${{ github.event.inputs.file_path }}')" \
+            --field encoding=base64 \
+            --jq '.sha')
+          echo "Blob SHA: $BLOB_SHA"
+
+          # Get current tree
           TREE_SHA=$(gh api repos/${{ github.repository }}/git/commits/$CURRENT_SHA --jq '.tree.sha')
           echo "Tree SHA: $TREE_SHA"
 
-          # Create blob for new file content
-          BLOB_SHA=$(printf '%s' '${{ github.event.inputs.file_content }}' | gh api repos/${{ github.repository }}/git/blobs --input - --field encoding=utf-8 --jq '.sha')
-          echo "Blob SHA: $BLOB_SHA"
-
-          # Create new tree with the file
+          # Create new tree
           NEW_TREE_SHA=$(gh api repos/${{ github.repository }}/git/trees \
             --field base_tree="$TREE_SHA" \
             --raw-field tree="[{\"path\":\"${{ github.event.inputs.file_path }}\",\"mode\":\"100644\",\"type\":\"blob\",\"sha\":\"$BLOB_SHA\"}]" \
             --jq '.sha')
           echo "New tree SHA: $NEW_TREE_SHA"
 
-          # Create commit
+          # Create commit via API
           COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/commits \
             --field message="${{ github.event.inputs.commit_message }}" \
             --field tree="$NEW_TREE_SHA" \
@@ -55,11 +62,12 @@ jobs:
             --jq '.sha')
           echo "Commit SHA: $COMMIT_SHA"
 
-          # Update branch reference
+          # Update main branch to point to new commit
           gh api repos/${{ github.repository }}/git/refs/heads/${{ github.ref_name }} \
             --method PATCH \
             --field sha="$COMMIT_SHA"
 
-          # Check verification status
-          echo "Checking commit verification..."
-          gh api repos/${{ github.repository }}/commits/$COMMIT_SHA --jq '{sha: .sha, author: .author.login, verification: .verification}'
+          # Check if commit is signed/verified
+          echo "=== VERIFICATION CHECK ==="
+          gh api repos/${{ github.repository }}/commits/$COMMIT_SHA \
+            --jq '{sha: .sha, author: .author.login, verification: .verification}'
