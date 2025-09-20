@@ -10,7 +10,7 @@ on:
       file_content:
         description: 'New file content'
         required: true
-        default: '# Test Signed Commit\n\nThis file was created by GitHub Actions to test automatic commit signing.\n\nCreated at: ${{ github.run_id }}'
+        default: '# Test Signed Commit\n\nThis file was created by GitHub Actions to test automatic commit signing.'
       commit_message:
         description: 'Commit message'
         required: true
