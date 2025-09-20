@@ -1,0 +1,65 @@
+name: Test Signed Commits
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_path:
+        description: 'File path to modify'
+        required: true
+        default: 'test-signed-commit.md'
+      file_content:
+        description: 'New file content'
+        required: true
+        default: '# Test Signed Commit\n\nThis file was created by GitHub Actions to test automatic commit signing.\n\nCreated at: ${{ github.run_id }}'
+      commit_message:
+        description: 'Commit message'
+        required: true
+        default: 'Test signed commit via GitHub Actions API'
+
+jobs:
+  signed-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create signed commit via GitHub REST API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get current branch SHA
+          CURRENT_SHA=$(gh api repos/${{ github.repository }}/git/refs/heads/${{ github.ref_name }} --jq '.object.sha')
+          echo "Current SHA: $CURRENT_SHA"
+
+          # Get current tree SHA
+          TREE_SHA=$(gh api repos/${{ github.repository }}/git/commits/$CURRENT_SHA --jq '.tree.sha')
+          echo "Tree SHA: $TREE_SHA"
+
+          # Create blob for new file content
+          BLOB_SHA=$(echo '${{ github.event.inputs.file_content }}' | gh api repos/${{ github.repository }}/git/blobs --input - --field encoding=utf-8 --jq '.sha')
+          echo "Blob SHA: $BLOB_SHA"
+
+          # Create new tree with the file
+          NEW_TREE_SHA=$(gh api repos/${{ github.repository }}/git/trees \
+            --field base_tree="$TREE_SHA" \
+            --raw-field tree="[{\"path\":\"${{ github.event.inputs.file_path }}\",\"mode\":\"100644\",\"type\":\"blob\",\"sha\":\"$BLOB_SHA\"}]" \
+            --jq '.sha')
+          echo "New tree SHA: $NEW_TREE_SHA"
+
+          # Create commit
+          COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/commits \
+            --field message="${{ github.event.inputs.commit_message }}" \
+            --field tree="$NEW_TREE_SHA" \
+            --raw-field parents="[\"$CURRENT_SHA\"]" \
+            --field 'author[name]=github-actions[bot]' \
+            --field 'author[email]=41898282+github-actions[bot]@users.noreply.github.com' \
+            --jq '.sha')
+          echo "Commit SHA: $COMMIT_SHA"
+
+          # Update branch reference
+          gh api repos/${{ github.repository }}/git/refs/heads/${{ github.ref_name }} \
+            --method PATCH \
+            --field sha="$COMMIT_SHA"
+
+          # Check verification status
+          echo "Checking commit verification..."
+          gh api repos/${{ github.repository }}/commits/$COMMIT_SHA --jq '{sha: .sha, author: .author.login, verification: .verification}'
