@@ -63,13 +63,18 @@ jobs:
           echo "New tree SHA: $NEW_TREE_SHA"
 
           # Create commit via API
-          COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/commits \
-            --field message="${{ github.event.inputs.commit_message }}" \
-            --field tree="$NEW_TREE_SHA" \
-            --raw-field parents="[\"$CURRENT_SHA\"]" \
-            --field 'author[name]=github-actions[bot]' \
-            --field 'author[email]=41898282+github-actions[bot]@users.noreply.github.com' \
-            --jq '.sha')
+          cat > commit.json << EOF
+          {
+            "message": "${{ github.event.inputs.commit_message }}",
+            "tree": "$NEW_TREE_SHA",
+            "parents": ["$CURRENT_SHA"],
+            "author": {
+              "name": "github-actions[bot]",
+              "email": "41898282+github-actions[bot]@users.noreply.github.com"
+            }
+          }
+          EOF
+          COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/commits --input commit.json --jq '.sha')
           echo "Commit SHA: $COMMIT_SHA"
 
           # Update main branch to point to new commit
