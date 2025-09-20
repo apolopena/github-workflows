@@ -46,10 +46,20 @@ jobs:
           echo "Tree SHA: $TREE_SHA"
 
           # Create new tree
-          NEW_TREE_SHA=$(gh api repos/${{ github.repository }}/git/trees \
-            --field base_tree="$TREE_SHA" \
-            --raw-field tree="[{\"path\":\"${{ github.event.inputs.file_path }}\",\"mode\":\"100644\",\"type\":\"blob\",\"sha\":\"$BLOB_SHA\"}]" \
-            --jq '.sha')
+          cat > tree.json << EOF
+          {
+            "base_tree": "$TREE_SHA",
+            "tree": [
+              {
+                "path": "${{ github.event.inputs.file_path }}",
+                "mode": "100644",
+                "type": "blob",
+                "sha": "$BLOB_SHA"
+              }
+            ]
+          }
+          EOF
+          NEW_TREE_SHA=$(gh api repos/${{ github.repository }}/git/trees --input tree.json --jq '.sha')
           echo "New tree SHA: $NEW_TREE_SHA"
 
           # Create commit via API
