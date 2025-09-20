@@ -35,7 +35,7 @@ jobs:
           echo "Tree SHA: $TREE_SHA"
 
           # Create blob for new file content
-          BLOB_SHA=$(echo '${{ github.event.inputs.file_content }}' | gh api repos/${{ github.repository }}/git/blobs --input - --field encoding=utf-8 --jq '.sha')
+          BLOB_SHA=$(printf '%s' '${{ github.event.inputs.file_content }}' | gh api repos/${{ github.repository }}/git/blobs --input - --field encoding=utf-8 --jq '.sha')
           echo "Blob SHA: $BLOB_SHA"
 
           # Create new tree with the file
