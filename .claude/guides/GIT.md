@@ -8,6 +8,7 @@
 - Review with `git diff --staged` before committing
 - Tell user "Ready to push" after committing
 - Tell user "Ready to pull"  when a pull is needed
+- Before creating PR: check `git status -b` and upstream to verify branch is pushed
 
 ## Workflow Testing
 - Test workflows from branch: `gh workflow run NAME.yml --ref BRANCH_NAME -f param=value`
