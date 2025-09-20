@@ -23,9 +23,16 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PROVENANCE_APP_ID }}
+          private-key: ${{ secrets.PROVENANCE_APP_PRIVATE_KEY }}
+          installation-retrieval-payload: ${{ secrets.PROVENANCE_INSTALLATION_ID }}
       - name: Create file and commit via API
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           # Create the file content
           echo '${{ github.event.inputs.file_content }}' > '${{ github.event.inputs.file_path }}'
