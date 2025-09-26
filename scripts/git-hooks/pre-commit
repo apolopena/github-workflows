@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Git pre-commit hook for git-personas safety
+# Prevents humans from accidentally committing as AI persona
+#
+if [[ -z "$GP_HUMAN_SESSION" ]]; then
+    exit 0
+fi
+
+# Abort cleanly if there is no persona mismatch
+current_email=$(git config --get user.email 2>/dev/null)
+if [[ "$current_email" != *"AI"* ]]; then
+    exit 0
+fi
+
+# Personas mismatch: Human is trying to commit as AI - warn and abort hook
+echo "🚨 BLOCKED: Attempting to commit as AI persona!"
+echo "Current identity: $(git config --get user.name) <$current_email>"
+echo ""
+echo "💡 To fix: Run 'persona_human' to switch back to human identity"
+echo "   Then retry your commit operation"
+
+exit 1

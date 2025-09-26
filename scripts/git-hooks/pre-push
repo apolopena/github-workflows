@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Git pre-push hook for git-personas safety
+# Prevents humans from accidentally pushing as AI persona
+#
+
+if [[ -z "$GP_HUMAN_SESSION" ]]; then
+    exit 0
+fi
+
+# Check if current git identity is AI persona
+current_email=$(git config --get user.email 2>/dev/null)
+if [[ "$current_email" != *"AI"* ]]; then
+    exit 0
+fi
+
+# Human is trying to push as AI - warn and abort
+echo "🚨 BLOCKED: Attempting to push as AI persona!"
+echo "Current identity: $(git config --get user.name) <$current_email>"
+echo ""
+echo "💡 To fix: Run 'persona_human' to switch back to human identity"
+echo "   Then retry your push operation"
+
+exit 1
