@@ -6,6 +6,8 @@
 .claude/cache/
 .claude/*.log
 .claude/session_primers/
+.claude/docs/
+.claude/specs/
 
 # =====================
 # OS / Editor cruft
