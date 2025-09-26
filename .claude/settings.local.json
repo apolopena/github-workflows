@@ -36,7 +36,9 @@
       "Bash(gh api:*)",
       "Bash(persona_ai)",
       "SlashCommand(/init-primer)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(keychain:*)",
+      "Bash(awk:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
