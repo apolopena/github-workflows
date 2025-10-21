@@ -26,13 +26,16 @@ Collection of reusable GitHub Actions workflows for automation across repositori
   3. Store contents in password manager (you'll reuse for all repos)
   4. Delete the .pem file
 
-  Step 3: Install the App & Choose Repo Access
+ Step 3: Install the App & Choose Repo Access
 
-  1. Left sidebar → "Install App" → Click "Install" next to your account
-  2. Choose repository access:
+  1. Go to https://github.com/settings/apps
+  2. Click on your app name in the list
+  3. In the left sidebar menu (on the app's settings page), click "Install App"
+  4. You'll see your account/org listed - click the "Install" button next to it
+  5. Choose repository access:
     - ⭕ All repositories (app works in all current & future repos), OR
-    - ⭕ Only select repositories (choose specific repos from dropdown)
-  3. Click "Install"
+    - ⭕ Only select repositories (check the boxes for specific repos)
+  6. Click "Install" (green button at bottom)
 
   To modify later: https://github.com/settings/installations → Configure → change "Repository access"
 
