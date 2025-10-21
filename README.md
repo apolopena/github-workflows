@@ -52,18 +52,18 @@ Collection of reusable GitHub Actions workflows for automation across repositori
 
   Step 6: Copy Workflow Files
 
-  # Copy scripts
+  ### Copy scripts
   mkdir -p .github/scripts
   cp /path/to/github-workflows/.github/scripts/* .github/scripts/
   chmod +x .github/scripts/*.sh
 
-  # Copy workflow (works as-is)
+  ### Copy workflow (works as-is)
   mkdir -p .github/workflows
   cp /path/to/github-workflows/.github/examples/caller.ai.yml .github/workflows/ai-dispatch.yml
 
   Step 7: Test with Dry Run
 
-  # Dry run test - previews without making changes
+  ### Dry run test - previews without making changes
   gh workflow run ai-dispatch.yml \
     -f action=open-issue \
     -f provenance_label=AI_CODING_ASSISTANT \
@@ -71,16 +71,19 @@ Collection of reusable GitHub Actions workflows for automation across repositori
     -f body="Testing workflow" \
     -f plan_only=true
 
-  # Watch the run
+  ### Watch the run
   gh run watch
 
   ✅ Done! Once dry run succeeds, use plan_only=false (or omit it) to create actual issues/PRs.
 
   ---
-  Quick Reference
+ #### Quick Reference
 
-  Reuse across repos: Same App ID, PEM, and Installation ID for all reposModify repo access: https://github.com/settings/installations → Configure → Repository accessTroubleshooting 403: App not installed on repo or missing permissionsTroubleshooting
-   401: Check all three secrets match the same appSecurity: Store PEM in password manager, never commit secrets
+  - Reuse across repos: Same App ID, PEM, and Installation ID for all reposModify 
+  - repo access: https://github.com/settings/installations → Configure → Repository
+  - Access troubleshooting 403: App not installed on repo or missing permissions troubleshooting
+    - 401: Check all three secrets match the same appSecurity
+    - Store PEM in password manager, never commit secrets
 
 ## License
 
