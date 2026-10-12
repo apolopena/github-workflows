@@ -8,26 +8,23 @@ if [ -z "${PROV_LABEL:-}" ]; then
   exit 1
 fi
 
-# TOKEN must be set by the caller
-api_get() {
-  curl -fsS \
-    -H "Authorization: token ${TOKEN}" \
-    -H "Accept: application/vnd.github+json" \
-    -H "X-GitHub-Api-Version: ${API_VER}" \
-    "$1"
+# api_request METHOD URL [JSON]: one GitHub API call; TOKEN must be set by the caller
+api_request() {
+  local method="$1" url="$2"
+  local args=(-fsS -X "${method}"
+    -H "Authorization: token ${TOKEN}"
+    -H "Accept: application/vnd.github+json"
+    -H "X-GitHub-Api-Version: ${API_VER}")
+  if [ "$#" -ge 3 ]; then
+    args+=(-H "Content-Type: application/json" --data "$3")
+  fi
+  curl "${args[@]}" "${url}"
 }
 
-# TOKEN must be set by the caller
-api_post() {
-  local url="$1" data="$2"
-  curl -fsS -X POST \
-    -H "Authorization: token ${TOKEN}" \
-    -H "Accept: application/vnd.github+json" \
-    -H "X-GitHub-Api-Version: ${API_VER}" \
-    -H "Content-Type: application/json" \
-    --data "${data}" \
-    "${url}"
-}
+api_get()    { api_request GET "$1"; }
+api_post()   { api_request POST "$1" "$2"; }
+api_patch()  { api_request PATCH "$1" "$2"; }
+api_delete() { api_request DELETE "$1"; }
 
 # ACTOR should be set by the caller (for attribution only)
 provenance_block() {

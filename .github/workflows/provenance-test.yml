@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "open-issue | issue-comment | pr-comment | pr-code | open-pr"
+        description: "open-issue | issue-comment | pr-comment | pr-code | open-pr | edit-issue | edit-pr | close-issue | add-labels | remove-labels | create-label"
         type: string
         required: true
       provenance_label:
@@ -41,6 +41,18 @@ on:
         description: "true|false for draft PRs"
         type: string
         required: false
+      labels:
+        description: "Comma-separated labels for open-issue/add-labels/remove-labels"
+        type: string
+        required: false
+      state_reason:
+        description: "completed|not_planned for close-issue"
+        type: string
+        required: false
+      color:
+        description: "Six hex digits for create-label"
+        type: string
+        required: false
       plan_only:
         description: "true to dry-run (no changes)"
         type: boolean
@@ -67,6 +79,9 @@ jobs:
       base:             ${{ inputs.base }}
       head:             ${{ inputs.head }}
       draft:            ${{ inputs.draft }}
+      labels:           ${{ inputs.labels }}
+      state_reason:     ${{ inputs.state_reason }}
+      color:            ${{ inputs.color }}
       plan_only:        ${{ inputs.plan_only }}
     secrets:
       PROVENANCE_APP_ID:           ${{ secrets.PROVENANCE_APP_ID }}

@@ -32,15 +32,18 @@ This workflow enforces **transparent attribution of activity**.
 
 | Name            | Type    | Required | Description |
 |-----------------|---------|----------|-------------|
-| `action`        | string  | yes      | One of: `open-issue`, `issue-comment`, `pr-comment`, `pr-code`, `open-pr` |
+| `action`        | string  | yes      | One of: `open-issue`, `issue-comment`, `pr-comment`, `pr-code`, `open-pr`, `edit-issue`, `edit-pr`, `close-issue`, `add-labels`, `remove-labels`, `create-label` |
 | `provenance_label` | string | yes   | Caller-supplied provenance marker (e.g., `AI_CODING_ASSISTANT`) |
 | `target_repo`   | string  | no       | `owner/repo`. Defaults to the **caller** repo if omitted. |
-| `number`        | string  | no       | Issue/PR number for comment actions. |
-| `title`         | string  | no       | Title for `open-issue` or `open-pr`. |
+| `number`        | string  | no       | Issue/PR number for every action on an existing issue or PR. |
+| `title`         | string  | no       | Title for `open-issue`, `open-pr`, `edit-issue` or `edit-pr`; the label name for `create-label`. |
 | `body`          | string  | no       | Body text for issues/comments/PRs. |
 | `base`          | string  | no       | Base branch for `open-pr`. |
 | `head`          | string  | no       | Head branch for `open-pr` (e.g., `user:feature-branch`). |
 | `draft`         | string  | no       | `"true"` or `"false"` for draft PRs (defaults to `"false"`). |
+| `labels`        | string  | no       | Comma-separated label names for `open-issue`, `add-labels` and `remove-labels`. |
+| `state_reason`  | string  | no       | `completed` (default) or `not_planned`, for `close-issue`. |
+| `color`         | string  | no       | Six hex digits without `#`, for `create-label`. |
 | `plan_only`     | boolean | no       | When `true`, prints the intended call and **exits without changes**. |
 
 ---
@@ -84,7 +87,7 @@ The scripts source `.github/scripts/common.sh` for shared helpers.
 
 ### 1) Open an issue
 - **Input**: `action=open-issue`, `title`, optional `body`, optional `target_repo`
-- **Effect**: `POST /repos/{repo}/issues` (labels with `"ai"`), provenance block prepended.
+- **Effect**: `POST /repos/{repo}/issues`, with the provenance block appended. The issue gets only the labels named in the optional `labels` input.
 
 **Caller example:**
 
@@ -208,6 +211,22 @@ gh workflow run provenance.yml \
  -f head=user:feature/dispatch-helpers \
  -f draft=false
 ```
+
+### 6) Edit an issue or a PR
+- **Input**: `action=edit-issue` or `action=edit-pr`, `number`, and `title`, `body` or both
+- **Effect**: `PATCH /repos/{repo}/issues/{number}` or `PATCH /repos/{repo}/pulls/{number}`. Only the fields given change. A new body gets the provenance block appended.
+
+### 7) Close an issue
+- **Input**: `action=close-issue`, `number`, optional `body`, optional `state_reason`
+- **Effect**: when `body` is given, it is posted first as a comment with the provenance block. Then `PATCH /repos/{repo}/issues/{number}` sets `state=closed` with `state_reason` `completed` (the default) or `not_planned`. Any other reason is refused before any call.
+
+### 8) Add or remove labels
+- **Input**: `action=add-labels` or `action=remove-labels`, `number`, `labels` (comma-separated)
+- **Effect**: `add-labels` makes one `POST /repos/{repo}/issues/{number}/labels`. `remove-labels` makes one `DELETE /repos/{repo}/issues/{number}/labels/{name}` per label; removing a label the issue does not have fails.
+
+### 9) Create a label
+- **Input**: `action=create-label`, `title` (the name), `color` (six hex digits), optional `body` (the description)
+- **Effect**: `POST /repos/{repo}/labels`. The description gets no provenance block.
 
 ---
 

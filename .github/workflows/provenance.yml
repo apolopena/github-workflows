@@ -14,6 +14,12 @@ on:
             - pr-comment:     Comment on an existing pull request
             - pr-code:        Post code content as a PR comment
             - open-pr:        Create a new pull request
+            - edit-issue:     Change an issue's title or body
+            - edit-pr:        Change a pull request's title or body
+            - close-issue:    Close an issue, after an optional comment
+            - add-labels:     Add labels to an issue or pull request
+            - remove-labels:  Remove labels from an issue or pull request
+            - create-label:   Create a label (title is its name, body its description)
       provenance_label:
         required: true
         type: string
@@ -33,7 +39,7 @@ on:
         description: >
           Issue or pull request number.
           Required for actions that target an existing issue/PR
-          (e.g., issue-comment, pr-comment, pr-code).
+          (e.g., issue-comment, pr-comment, pr-code, edit-issue, close-issue, add-labels).
       title:
         required: false
         type: string
@@ -64,6 +70,24 @@ on:
         description: >
           Flag to mark a new pull request as a draft.
           Used only with open-pr.
+      labels:
+        required: false
+        type: string
+        description: >
+          Comma-separated label names.
+          Used with open-issue, add-labels and remove-labels.
+      state_reason:
+        required: false
+        type: string
+        description: >
+          Why an issue closes: "completed" (the default) or "not_planned".
+          Used only with close-issue.
+      color:
+        required: false
+        type: string
+        description: >
+          Six hex digits without "#", for example "1D76DB".
+          Used only with create-label.
       plan_only:
         required: false
         type: boolean
@@ -90,6 +114,12 @@ on:
           - pr-comment
           - pr-code
           - open-pr
+          - edit-issue
+          - edit-pr
+          - close-issue
+          - add-labels
+          - remove-labels
+          - create-label
       provenance_label:
         description: "e.g., human or AI_CODING_ASSISTANT"
         type: string
@@ -120,6 +150,18 @@ on:
         required: false
       draft:
         description: "true|false for draft PRs"
+        type: string
+        required: false
+      labels:
+        description: "Comma-separated labels for open-issue/add-labels/remove-labels"
+        type: string
+        required: false
+      state_reason:
+        description: "completed|not_planned for close-issue"
+        type: string
+        required: false
+      color:
+        description: "Six hex digits for create-label"
         type: string
         required: false
       plan_only:
@@ -161,6 +203,9 @@ jobs:
           TITLE:       ${{ inputs.title }}
           BASE:        ${{ inputs.base }}
           HEAD:        ${{ inputs.head }}
+          LABELS:      ${{ inputs.labels }}
+          STATE_REASON: ${{ inputs.state_reason }}
+          COLOR:       ${{ inputs.color }}
           PROV_LABEL:  ${{ inputs.provenance_label }}
         run: |
           set -euo pipefail
@@ -173,6 +218,12 @@ jobs:
             issue-comment) echo "POST /repos/$REPO/issues/${NUMBER:-?}/comments" ;;
             pr-code)       echo "POST (code) /repos/$REPO/issues/${NUMBER:-?}/comments" ;;
             open-pr)       echo "POST /repos/$REPO/pulls (base='${BASE:-}', head='${HEAD:-}', title='${TITLE:-}')" ;;
+            edit-issue)    echo "PATCH /repos/$REPO/issues/${NUMBER:-?}" ;;
+            edit-pr)       echo "PATCH /repos/$REPO/pulls/${NUMBER:-?}" ;;
+            close-issue)   echo "PATCH /repos/$REPO/issues/${NUMBER:-?} (state=closed, reason='${STATE_REASON:-completed}')" ;;
+            add-labels)    echo "POST /repos/$REPO/issues/${NUMBER:-?}/labels (labels='${LABELS:-}')" ;;
+            remove-labels) echo "DELETE /repos/$REPO/issues/${NUMBER:-?}/labels/<each> (labels='${LABELS:-}')" ;;
+            create-label)  echo "POST /repos/$REPO/labels (name='${TITLE:-}', color='${COLOR:-}')" ;;
             *)             echo "Unknown action: $ACTION"; exit 1 ;;
           esac
 
@@ -202,6 +253,9 @@ jobs:
           BASE:       ${{ inputs.base }}
           HEAD:       ${{ inputs.head }}
           DRAFT:      ${{ inputs.draft }}
+          LABELS:     ${{ inputs.labels }}
+          STATE_REASON: ${{ inputs.state_reason }}
+          COLOR:      ${{ inputs.color }}
           ACTOR:      ${{ github.actor }}
           PROV_LABEL: ${{ inputs.provenance_label }}
         run: .github/scripts/dispatch_action.sh

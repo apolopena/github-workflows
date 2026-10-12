@@ -3,7 +3,7 @@ name: AI helper
 on:
   workflow_dispatch:
     inputs:
-      action:           { description: "open-issue|pr-comment|issue-comment|pr-code|open-pr", required: true }
+      action:           { description: "open-issue|pr-comment|issue-comment|pr-code|open-pr|edit-issue|edit-pr|close-issue|add-labels|remove-labels|create-label", required: true }
       provenance_label: { description: "e.g., AI_CODING_ASSISTANT", required: true }
       target_repo:      { required: false }
       number:           { required: false }
@@ -12,6 +12,9 @@ on:
       base:             { required: false }
       head:             { required: false }
       draft:            { required: false }
+      labels:           { description: "comma-separated label names", required: false }
+      state_reason:     { description: "completed|not_planned, for close-issue", required: false }
+      color:            { description: "six hex digits, for create-label", required: false }
       plan_only:        { required: false, type: boolean, default: false }
 
 jobs:
@@ -27,6 +30,9 @@ jobs:
       base:             ${{ inputs.base }}
       head:             ${{ inputs.head }}
       draft:            ${{ inputs.draft }}
+      labels:           ${{ inputs.labels }}
+      state_reason:     ${{ inputs.state_reason }}
+      color:            ${{ inputs.color }}
       plan_only:        ${{ inputs.plan_only }}
     secrets:
       AI_APP_ID:           ${{ secrets.PROVENANCE_APP_ID }}
